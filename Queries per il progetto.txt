@@ -1,0 +1,119 @@
+# Questa query SPARQL mi mostra tutti i monumenti di Rimini
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX bd: <http://www.bigdata.com/rdf#>
+
+SELECT DISTINCT *
+WHERE { 
+  ?monuments wdt:P17 wd:Q38 ;
+            wdt:P131 wd:Q13369 ;
+            wdt:P1435 wd:Q26971668 ;
+            rdfs:label ?monument_name .
+  ?monuments wdt:P131 ?moncity .
+  ?moncity rdfs:label ?city .
+  
+  FILTER (lang(?monument_name) = "it")
+  FILTER (lang(?city) = "it")
+}
+ LIMIT 100
+
+---------------------------------
+
+# Questa query SPARQL mi mostra i monumenti di Rimini che ho scelto
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX bd: <http://www.bigdata.com/rdf#>
+
+SELECT DISTINCT *
+WHERE { 
+  ?monuments wdt:P17 wd:Q38 ;
+            wdt:P131 wd:Q13369 ;
+            wdt:P1435 wd:Q26971668 ;
+            rdfs:label ?monument_name .
+  ?monuments wdt:P131 ?moncity .
+  ?moncity rdfs:label ?city .
+  
+  FILTER (lang(?monument_name) = "it")
+  FILTER (lang(?city) = "it")
+  FILTER (
+    REGEX(?monument_name, "Arco", "i") ||
+    REGEX(?monument_name, "Tiberio", "i") ||
+    REGEX(?monument_name, "Malatestiano", "i") ||
+    REGEX(?monument_name, "Montanara", "i") ||
+    REGEX(?monument_name, "Sismondo", "i") ||
+    REGEX(?monument_name, "Agostino", "i") ||
+    REGEX(?monument_name, "Domus", "i")
+  )
+}
+
+-------------------------------
+
+# Questa query SPARQL mi mostra tutti i monumenti di Rimini che ho scelto guardando tutte le proprietà che mi interessano con UNION
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX bd: <http://www.bigdata.com/rdf#>
+
+SELECT DISTINCT *
+WHERE {
+   VALUES ?monuments
+   { wd:Q1072853 wd:Q3672313 wd:Q2063557 wd:Q3713399 wd:Q28000559 wd:Q948080 wd:Q1268593 }
+
+  ?monuments rdfs:label ?monument_name .
+  { ?monuments wdt:P1435 wd:Q26971668 . }    # mettiamo questa condizione perché se un monumento non ha nessuna delle proprietà seguenti non apparirebbe
+  UNION
+  { ?monuments wdt:P571 ?inauguration_date . }
+  UNION
+  { ?monuments wdt:P186 ?constrmaterial . }
+  UNION
+  { ?monuments wdt:P149 ?archstyle . }
+  UNION
+  { ?monuments wdt:P138 ?namedafter . }
+
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "it". }
+  FILTER (lang(?monument_name) = "it")
+}
+ORDER BY ?monument_name
+
+-------------------------------------
+# Questa query SPARQL mi mostra la stessa tabella ma è più compatta e ordinata
+
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX bd: <http://www.bigdata.com/rdf#>
+
+SELECT DISTINCT ?monuments ?monument_name ?city (YEAR(?inauguration_date) AS ?inauguration_year) ?material ?style ?eponym
+WHERE {
+  VALUES ?monuments
+  { wd:Q1072853 wd:Q2063557 wd:Q3713399 wd:Q28000559 wd:Q948080 wd:Q1268593 wd:Q3672313 }
+
+  ?monuments rdfs:label ?monument_name ;
+             wdt:P131 ?moncity .
+
+  FILTER(LANG(?monument_name) = "it")
+
+  OPTIONAL { ?monuments wdt:P571 ?inauguration_date. }
+  OPTIONAL { ?monuments wdt:P186 ?constrmaterial. }
+  OPTIONAL { ?monuments wdt:P149 ?archstyle. }
+  OPTIONAL { ?monuments wdt:P138 ?namedafter. }
+
+  SERVICE wikibase:label {
+    bd:serviceParam wikibase:language "en,it" .
+    ?moncity rdfs:label ?city .
+    ?constrmaterial rdfs:label ?material .
+    ?archstyle rdfs:label ?style .
+    ?namedafter rdfs:label ?eponym .
+  }
+}
+ORDER BY ?monument_name
+

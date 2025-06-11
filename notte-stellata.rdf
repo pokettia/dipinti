@@ -1,0 +1,11 @@
+@prefix wd: <http://www.wikidata.org/entity/> .
+@prefix wdt: <http://www.wikidata.org/prop/direct/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+wd:Q855 a wdt:Q3305213 ;  # Painting
+  wdt:P571 "1889-06-01T00:00:00Z"^^xsd:dateTime ;
+  wdt:P170 wd:Q5582 ;  # Vincent van Gogh
+  wdt:P186 wd:Q296955 ; # Olio su tela
+  wdt:P276 wd:Q160236 ; # MoMA
+  wdt:P2048 "73.7"^^xsd:decimal ;
+  wdt:P2049 "92.1"^^xsd:decimal .

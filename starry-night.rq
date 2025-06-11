@@ -1,0 +1,20 @@
+# Informazioni su Notte Stellata
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX wd: <http://www.wikidata.org/entity/>
+PREFIX wdt: <http://www.wikidata.org/prop/direct/>
+PREFIX wikibase: <http://wikiba.se/ontology#>
+PREFIX bd: <http://www.bigdata.com/rdf#>
+
+SELECT DISTINCT ?painting ?paintingLabel ?authorLabel ?date ?materialLabel ?locationLabel ?height ?width
+WHERE {
+  BIND(wd:Q855 AS ?painting)
+
+  OPTIONAL { ?painting wdt:P170 ?author. }
+  OPTIONAL { ?painting wdt:P571 ?date. }
+  OPTIONAL { ?painting wdt:P186 ?material. }
+  OPTIONAL { ?painting wdt:P276 ?location. }
+  OPTIONAL { ?painting wdt:P2048 ?height. }
+  OPTIONAL { ?painting wdt:P2049 ?width. }
+
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "it,en". }
+}
